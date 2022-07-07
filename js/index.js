@@ -24,34 +24,47 @@ window.addEventListener('DOMContentLoaded', () => {
   start.addEventListener('click', function (e) {
     document.querySelector('#quizBlock').style.display = 'block';
     start.style.display = 'none';
-  });
-  // quizArray QUESTIONS & ANSWERS
-  // q = QUESTION, o = OPTIONS, a = CORRECT ANSWER
-  // Basic ideas from https://code-boxx.com/simple-javascript-quiz/
-  const quizArray = [
-    {
-      q: 'Which is the third planet from the sun?',
-      o: ['Saturn', 'Earth', 'Pluto', 'Mars'],
-      a: 1, // array index 1 - so Earth is the correct answer here
-    },
-    {
-      q: 'Which is the largest ocean on Earth?',
-      o: ['Atlantic Ocean', 'Indian Ocean', 'Arctic Ocean', 'Pacific Ocean'],
-      a: 3,
-    },
-    {
-      q: 'What is the capital of Australia',
-      o: ['Sydney', 'Canberra', 'Melbourne', 'Perth'],
-      a: 1,
-    },
-  ];
 
-  // function to Display the quiz questions and answers from the object
-  const displayQuiz = () => {
-    const quizWrap = document.querySelector('#quizWrap');
-    let quizDisplay = '';
-    quizArray.map((quizItem, index) => {
-      quizDisplay += `<ul class="list-group">
+    // quizArray QUESTIONS & ANSWERS
+    // q = QUESTION, o = OPTIONS, a = CORRECT ANSWER
+    // Basic ideas from https://code-boxx.com/simple-javascript-quiz/
+    const quizArray = [
+      {
+        q: 'Which is the third planet from the sun?',
+        o: ['Saturn', 'Earth', 'Pluto', 'Mars'],
+        a: 1, // array index 1 - so Earth is the correct answer here
+      },
+      {
+        q: 'Which is the largest ocean on Earth?',
+        o: ['Atlantic Ocean', 'Indian Ocean', 'Arctic Ocean', 'Pacific Ocean'],
+        a: 3,
+      },
+      {
+        q: 'What is the capital of Australia',
+        o: ['Sydney', 'Canberra', 'Melbourne', 'Perth'],
+        a: 1,
+      },
+    ];
+
+    // Add 2 questions to the app (each question must have 4 options)
+    quizArray.push(
+      {
+        q: 'Which of the following is a server-side Java Script object?',
+        o: ['Function', 'File', 'FileUpload', 'Date'],
+        a: 1,
+      },
+      {
+        q: 'Which attribute needs to be changed to make elements invisible?',
+        o: ['visibilty', ' visible', 'invisibility', 'invisibility'],
+        a: 0,
+      })
+
+    // function to Display the quiz questions and answers from the object
+    const displayQuiz = () => {
+      const quizWrap = document.querySelector('#quizWrap');
+      let quizDisplay = '';
+      quizArray.map((quizItem, index) => {
+        quizDisplay += `<ul class="list-group">
                    Q - ${quizItem.q}
                     <li class="list-group-item mt-2" id="li_${index}_0"><input type="radio" name="radio${index}" id="radio_${index}_0"> ${quizItem.o[0]}</li>
                     <li class="list-group-item" id="li_${index}_1"><input type="radio" name="radio${index}" id="radio_${index}_1"> ${quizItem.o[1]}</li>
@@ -59,32 +72,73 @@ window.addEventListener('DOMContentLoaded', () => {
                     <li class="list-group-item"  id="li_${index}_3"><input type="radio" name="radio${index}" id="radio_${index}_3"> ${quizItem.o[3]}</li>
                     </ul>
                     <div>&nbsp;</div>`;
-      quizWrap.innerHTML = quizDisplay;
-    });
-  };
+        quizWrap.innerHTML = quizDisplay;
+      });
+    };
 
-  // Calculate the score
-  const calculateScore = () => {
-    let score = 0;
-    quizArray.map((quizItem, index) => {
-      for (let i = 0; i < 4; i++) {
-        //highlight the li if it is the correct answer
-        let li = `li_${index}_${i}`;
-        let r = `radio_${index}_${i}`;
-        liElement = document.querySelector('#' + li);
-        radioElement = document.querySelector('#' + r);
-
-        if (quizItem.a == i) {
-          //change background color of li element here
+    // Calculate the score
+    const calculateScore = () => {
+      let score = 0;
+      quizArray.map((quizItem, index) => {
+        for (let i = 0; i < 4; i++) {
+          //highlight the li if it is the correct answer
+          let li = `li_${index}_${i}`;
+          let r = `radio_${index}_${i}`;
+          liElement = document.querySelector('#' + li);
+          radioElement = document.querySelector('#' + r);
+          if (quizItem.a == i) {
+            //change background color of li element here
+            liElement.style.backgroundColor = 'green';
+          }
+          if (radioElement.checked) {
+            // code for task 1 goes here
+            if (quizItem.a === i) {
+              score++;
+            } else {
+              liElement.style.backgroundColor = 'red';
+            }
+          }
         }
+      });
+      return score;
+    };
 
-        if (radioElement.checked) {
-          // code for task 1 goes here
-        }
+    // call the displayQuiz function
+    displayQuiz();
+
+    //submit function
+    document.querySelector('#btnSubmit').onclick = () => {
+      const scoreDisplay = document.querySelector('#score');
+      let currentScore = calculateScore();
+      scoreDisplay.innerHTML = `<h3>Score : ${currentScore} / ${quizArray.length}</h3>`
+      clearInterval(interval);
+      document.querySelector('#btnSubmit').style.display = "none"
+      scoreDisplay.classList.add("position-absolute")
+      scoreDisplay.style.top = "73px"
+      scoreDisplay.style.backgroundColor = "green";
+    }
+
+    //reset function
+    document.querySelector('#btnReset').onclick = () => {
+      window.location.href = window.location.href;
+    }
+
+    //count down
+    let time = 60
+    let interval = setInterval(() => {
+      time--
+      let minutes = Math.floor(time / 60)
+      let seconds = time % 60
+      if (time < 0) {
+        minutes = 0
+        seconds = 0
+        clearInterval(interval)
+        alert('time is up, please check you score')
+        document.querySelector('#btnSubmit').click()
       }
-    });
-  };
-
-  // call the displayQuiz function
-  displayQuiz();
+      minutes = minutes < 10 ? '0' + minutes : minutes
+      seconds = seconds < 10 ? '0' + seconds : seconds
+      document.querySelector('#time').innerHTML = `${minutes}:${seconds}`
+    }, 1000)
+  });
 });
